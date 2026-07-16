@@ -552,10 +552,10 @@ function goToToday() {
 async function loadReservas() {
   reservasBody.innerHTML = '<tr><td colspan="8"><div class="loading-spinner"><div class="spinner"></div><span>Cargando reservas…</span></div></td></tr>';
 
-  // Build query
+  // Build query — left join so reservas without disponibilidad_id also show
   let query = sb
     .from('reservas')
-    .select('*, disponibilidad!inner(fecha, modalidad)')
+    .select('*, disponibilidad(fecha, modalidad)')
     .order('created_at', { ascending: false });
 
   // Apply filters
