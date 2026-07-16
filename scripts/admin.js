@@ -550,7 +550,7 @@ function goToToday() {
 // ============================================
 
 async function loadReservas() {
-  reservasBody.innerHTML = '<tr><td colspan="8"><div class="loading-spinner"><div class="spinner"></div><span>Cargando reservas…</span></div></td></tr>';
+  reservasBody.innerHTML = '<tr><td colspan="9"><div class="loading-spinner"><div class="spinner"></div><span>Cargando reservas…</span></div></td></tr>';
 
   // Build query — left join so reservas without disponibilidad_id also show
   let query = sb
@@ -573,7 +573,7 @@ async function loadReservas() {
 
   if (error) {
     showToast('Error cargando reservas: ' + error.message, 'error');
-    reservasBody.innerHTML = '<tr><td colspan="8" class="empty-state"><div class="empty-state__icon">⚠️</div><div class="empty-state__text">Error al cargar reservas</div></td></tr>';
+    reservasBody.innerHTML = '<tr><td colspan="9" class="empty-state"><div class="empty-state__icon">⚠️</div><div class="empty-state__text">Error al cargar reservas</div></td></tr>';
     return;
   }
 
@@ -583,7 +583,7 @@ async function loadReservas() {
 
 function renderReservas() {
   if (state.reservas.length === 0) {
-    reservasBody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-state__icon">📋</div><div class="empty-state__text">No se encontraron reservas</div></div></td></tr>';
+    reservasBody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-state__icon">📋</div><div class="empty-state__text">No se encontraron reservas</div></div></td></tr>';
     return;
   }
 
@@ -604,13 +604,17 @@ function renderReservas() {
     // Date group header
     const headerRow = document.createElement('tr');
     headerRow.className = 'date-group-header';
-    headerRow.innerHTML = `<td colspan="8">📅 ${formatDateDisplay(fecha)} — ${grouped[fecha].length} reserva(s)</td>`;
+    headerRow.innerHTML = `<td colspan="9">📅 ${formatDateDisplay(fecha)} — ${grouped[fecha].length} reserva(s)</td>`;
     reservasBody.appendChild(headerRow);
 
     grouped[fecha].forEach((r) => {
       const row = document.createElement('tr');
       const modalidadLabel = r.disponibilidad?.modalidad === 'manana' ? 'Mañana' : 'Tarde';
       const estadoClass = getEstadoClass(r.estado_pago);
+
+      const notaHtml = r.mensaje && r.mensaje.trim()
+        ? `<button class="nota-btn" title="Ver nota" data-nota="${escapeHtml(r.mensaje)}">📝</button>`
+        : '—';
 
       row.innerHTML = `
         <td><strong>${escapeHtml(r.nombre)}</strong></td>
@@ -621,7 +625,16 @@ function renderReservas() {
         <td><span class="estado-badge estado-badge--${estadoClass}">${escapeHtml(r.estado_pago || 'pendiente')}</span></td>
         <td>${r.importe_cents ? (r.importe_cents / 100).toFixed(2) + ' €' : '—'}</td>
         <td>${formatDateTime(r.created_at)}</td>
+        <td style="text-align:center">${notaHtml}</td>
       `;
+
+      // Attach click handler for the note button if present
+      const notaBtn = row.querySelector('.nota-btn');
+      if (notaBtn) {
+        notaBtn.addEventListener('click', () => {
+          alert(notaBtn.dataset.nota);
+        });
+      }
       reservasBody.appendChild(row);
     });
   });

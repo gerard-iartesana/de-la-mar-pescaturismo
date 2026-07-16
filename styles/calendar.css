@@ -155,6 +155,22 @@
   background: var(--cal-full);
 }
 
+.cal-dot.available {
+  background: var(--cal-available);
+}
+
+.cal-dot.reservas-1 {
+  background: #f0c929; /* yellow — 1 reservation */
+}
+
+.cal-dot.reservas-2 {
+  background: #e88b2e; /* orange — 2 reservations */
+}
+
+.cal-dot.reservas-3 {
+  background: #dc3545; /* red — 3+ reservations */
+}
+
 /* Clickable days */
 .cal-day.has-slots {
   cursor: pointer;

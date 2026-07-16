@@ -154,24 +154,25 @@
       let dotsHtml = '';
       let hasAvailable = false;
 
+      let totalReservas = 0;
       slots.forEach(slot => {
         if (slot.estado === 'cancelado') return;
-        
-        const remaining = slot.plazas_totales - slot.plazas_reservadas;
-        const isMorning = slot.modalidad === 'manana';
-        let dotClass = isMorning ? 'morning' : 'evening';
-        
-        if (slot.estado === 'completo' || remaining <= 0) {
-          dotClass = 'full';
-        } else if (remaining <= 2) {
-          dotClass = 'few';
-          hasAvailable = true;
-        } else {
-          hasAvailable = true;
-        }
-
-        dotsHtml += `<span class="cal-dot ${dotClass}"></span>`;
+        totalReservas += slot.plazas_reservadas || 0;
+        hasAvailable = true;
       });
+
+      let dotClass = 'available'; // default green
+      if (totalReservas >= 3) {
+        dotClass = 'reservas-3';
+      } else if (totalReservas === 2) {
+        dotClass = 'reservas-2';
+      } else if (totalReservas === 1) {
+        dotClass = 'reservas-1';
+      }
+
+      if (hasAvailable) {
+        dotsHtml = `<span class="cal-dot ${dotClass}"></span>`;
+      }
 
       dotsEl.innerHTML = dotsHtml;
 
