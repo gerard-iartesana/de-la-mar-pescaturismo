@@ -611,9 +611,10 @@ function renderReservas() {
       const row = document.createElement('tr');
       const modalidadLabel = r.disponibilidad?.modalidad === 'manana' ? 'Mañana' : 'Tarde';
       const estadoClass = getEstadoClass(r.estado_pago);
+      const hasNota = r.mensaje && r.mensaje.trim();
 
-      const notaHtml = r.mensaje && r.mensaje.trim()
-        ? `<button class="nota-btn" title="Ver nota" data-nota="${escapeHtml(r.mensaje)}">📝</button>`
+      const notaIcon = hasNota
+        ? `<button class="nota-btn" title="Ver nota">📝</button>`
         : '—';
 
       row.innerHTML = `
@@ -625,17 +626,26 @@ function renderReservas() {
         <td><span class="estado-badge estado-badge--${estadoClass}">${escapeHtml(r.estado_pago || 'pendiente')}</span></td>
         <td>${r.importe_cents ? (r.importe_cents / 100).toFixed(2) + ' €' : '—'}</td>
         <td>${formatDateTime(r.created_at)}</td>
-        <td style="text-align:center">${notaHtml}</td>
+        <td style="text-align:center">${notaIcon}</td>
       `;
 
-      // Attach click handler for the note button if present
-      const notaBtn = row.querySelector('.nota-btn');
-      if (notaBtn) {
-        notaBtn.addEventListener('click', () => {
-          alert(notaBtn.dataset.nota);
+      reservasBody.appendChild(row);
+
+      // Create expandable note row (hidden by default)
+      if (hasNota) {
+        const noteRow = document.createElement('tr');
+        noteRow.className = 'nota-detail-row';
+        noteRow.style.display = 'none';
+        noteRow.innerHTML = `<td colspan="9" style="padding: 12px 20px; background: #faf6ef; border-left: 3px solid var(--acento, #c97b3a);">
+          <strong>📝 Nota:</strong> ${escapeHtml(r.mensaje)}
+        </td>`;
+        reservasBody.appendChild(noteRow);
+
+        row.querySelector('.nota-btn').addEventListener('click', () => {
+          const isVisible = noteRow.style.display !== 'none';
+          noteRow.style.display = isVisible ? 'none' : 'table-row';
         });
       }
-      reservasBody.appendChild(row);
     });
   });
 }
