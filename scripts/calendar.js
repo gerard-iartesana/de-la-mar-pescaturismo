@@ -116,7 +116,7 @@
       html += '<div class="cal-day empty"></div>';
     }
 
-    // Day cells
+    // Day cells — show green dot on all non-past days
     for (let d = 1; d <= daysInMonth; d++) {
       const dateObj = new Date(currentYear, currentMonth, d);
       const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -127,9 +127,11 @@
       if (isPast) classes += ' past';
       if (isToday) classes += ' today';
 
+      const defaultDot = isPast ? '' : '<span class="cal-dot available"></span>';
+
       html += `<div class="${classes}" data-date="${dateStr}">
         <span class="cal-day-num">${d}</span>
-        <div class="cal-day-dots" id="dots-${dateStr}"></div>
+        <div class="cal-day-dots" id="dots-${dateStr}">${defaultDot}</div>
       </div>`;
     }
 
@@ -142,7 +144,7 @@
 
   // --- Apply slot data to calendar ---
   function applySlots(grouped) {
-    // Reset all day states
+    // Reset clickable state
     document.querySelectorAll('.cal-day[data-date]').forEach(el => {
       el.classList.remove('has-slots');
       el.onclick = null;
@@ -155,31 +157,27 @@
 
       if (dayEl.classList.contains('past')) return;
 
-      let dotsHtml = '';
       let hasAvailable = false;
 
-      // Count actual reservations (not personas)
-      let totalReservas = 0;
+      // Count total reservations using plazas_reservadas from disponibilidad
+      let totalReserved = 0;
       slots.forEach(slot => {
         if (slot.estado === 'cancelado') return;
-        totalReservas += slot._reservaCount || 0;
+        totalReserved += slot.plazas_reservadas || 0;
         hasAvailable = true;
       });
 
-      let dotClass = 'available'; // default green — no reservations
-      if (totalReservas >= 3) {
+      // Determine dot color based on booking load
+      let dotClass = 'available'; // green — no bookings
+      if (totalReserved >= 3) {
         dotClass = 'reservas-3';
-      } else if (totalReservas === 2) {
+      } else if (totalReserved === 2) {
         dotClass = 'reservas-2';
-      } else if (totalReservas === 1) {
+      } else if (totalReserved >= 1) {
         dotClass = 'reservas-1';
       }
 
-      if (hasAvailable) {
-        dotsHtml = `<span class="cal-dot ${dotClass}"></span>`;
-      }
-
-      dotsEl.innerHTML = dotsHtml;
+      dotsEl.innerHTML = `<span class="cal-dot ${dotClass}"></span>`;
 
       if (hasAvailable) {
         dayEl.classList.add('has-slots');
