@@ -5,9 +5,6 @@
 (function () {
   'use strict';
 
-  const SUPABASE_URL = 'https://dazootyjaeqhgccpnbta.supabase.co';
-  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhem9vdHlqYWVxaGdjY3BuYnRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMjc3OTgsImV4cCI6MjA5OTgwMzc5OH0.50mHio1P3arZxXQ-k05LSkvFNyBsRcMNiTVHFjLdGhw';
-
   function initBooking() {
     const form = document.getElementById('reserva-form');
     if (!form) return;
@@ -72,21 +69,25 @@
     btn.style.opacity = '0.7';
 
     try {
-      // Save directly to Supabase
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/reservas`, {
+      // Save via serverless function (uses service key, bypasses RLS)
+      const res = await fetch('/api/booking', {
         method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON,
-          'Authorization': `Bearer ${SUPABASE_ANON}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(reserva)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: reserva.nombre,
+          email: reserva.email,
+          telefono: reserva.telefono,
+          modalidad: modalidad,
+          fecha: form.querySelector('#fecha').value,
+          personas: reserva.personas,
+          mensaje: reserva.mensaje,
+          disponibilidad_id: reserva.disponibilidad_id
+        })
       });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || 'Error al guardar la reserva');
+        throw new Error(err.error || 'Error al guardar la reserva');
       }
 
       // Success — show confirmation
