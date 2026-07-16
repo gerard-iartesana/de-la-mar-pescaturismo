@@ -169,9 +169,9 @@
 
       // Determine dot color based on booking load
       let dotClass = 'available'; // green — no bookings
-      if (totalReserved >= 3) {
+      if (totalReserved >= 7) {
         dotClass = 'reservas-3';
-      } else if (totalReserved === 2) {
+      } else if (totalReserved >= 3) {
         dotClass = 'reservas-2';
       } else if (totalReserved >= 1) {
         dotClass = 'reservas-1';
