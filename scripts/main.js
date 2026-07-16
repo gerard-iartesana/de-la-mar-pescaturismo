@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   window.addEventListener('scroll', updateActiveLink, { passive: true });
 
-  // --- Form validation ---
+  // --- Form validation (inline on blur — submit handled by payment.js) ---
   const form = document.getElementById('reserva-form');
   if (form) {
     const required = form.querySelectorAll('[required]');
@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const validateField = (field) => {
       const group = field.closest('.form-group');
       if (!group) return true;
-      const errorEl = group.querySelector('.error-msg');
       let valid = true;
 
       if (field.value.trim() === '') {
@@ -76,36 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     required.forEach(field => {
       field.addEventListener('blur', () => validateField(field));
-    });
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      let allValid = true;
-      required.forEach(field => {
-        if (!validateField(field)) allValid = false;
-      });
-
-      const checkbox = form.querySelector('#accept-cancel');
-      const checkGroup = checkbox?.closest('.form-group');
-      if (checkbox && !checkbox.checked) {
-        allValid = false;
-        if (checkGroup) checkGroup.classList.add('has-error');
-      } else if (checkGroup) {
-        checkGroup.classList.remove('has-error');
-      }
-
-      if (allValid) {
-        const btn = form.querySelector('.btn-submit');
-        btn.textContent = 'Enviando…';
-        btn.disabled = true;
-        setTimeout(() => {
-          btn.textContent = '✓ Solicitud enviada';
-          btn.style.background = 'var(--success)';
-        }, 1500);
-      } else {
-        const firstError = form.querySelector('.has-error');
-        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
     });
   }
 

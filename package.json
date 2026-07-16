@@ -1,0 +1,10 @@
+{
+  "name": "pescaturismo-de-la-mar",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pescaturismo landing — De la Mar a sa Taula",
+  "dependencies": {
+    "redsys-easy": "^4.0.0",
+    "@supabase/supabase-js": "^2.45.0"
+  }
+}

@@ -1,0 +1,59 @@
+Estimado comercio, 369386099. 
+
+Agradecemos habernos elegido como entidad gestora de un TPV VIRTUAL para su Comercio.
+
+Le estaremos acompañando en todo momento durante el proceso de alta, integración y mantenimiento del CYBERPAC.
+
+Adjuntamos la documentación necesaria para poder realizar la integración de la tienda con nuestra pasarela en el archivo adjunto Guía de integración.pdf.
+
+A continuación, mostramos los datos necesarios para la configuración del TPV virtual:
+
+Credenciales de acceso al Módulo de Administración
+Web de acceso	https://sis-t.redsys.es:25443/canales/
+Usuario	369386099
+Contraseña	a369386099369386099
+Datos para operar en el entorno de Test
+Número de Comercio (Ds_Merchant_MerchantCode)	369386099
+Número de terminal (Ds_Merchant_Terminal)	1
+Moneda del terminal (Ds_Merchant_Currency)	978
+Clave secreta de cifrado	sq7HjrUOBfKmC576ILgskD5srU870gJ7
+Tipo de cifrado	SHA256
+Tarjeta para prueba de operación aceptada
+Número de tarjeta	4548810000000003
+Caducidad	12/27
+Código CVV2	123
+Código CIP	123456
+Tarjeta para prueba de operación denegada
+Número de tarjeta	1111111111111117
+Caducidad	12/27
+Código CVV2	(No Requerido)
+Pueden descargar los módulos oficiales facilitados por Redsys para las distintas plataformas de tienda online (PrestaShop, Woocommerce, Magento, etc.) en uno de los siguientes enlaces:
+
+https://redsys.es: seleccionar la pestaña de “Desarrolladores”, “Documentación”, “Modelos de integración” después en “Módulos de pago”, más abajo saldrá la opción de descargar el módulo correspondiente a su plataforma.
+
+https://pagosonline.redsys.es: acceder al apartado de “Documentación”, “Modelos de integración” después en “Módulos de pago”, más abajo saldrá la opción de descargar el módulo correspondiente a su plataforma.
+
+Asimismo, en caso de tener contratado el servicio de Bizum, se adjunta la Guía Bizum, en la que se detallan los pasos y consideraciones necesarios para su correcta implementación. Si la opción de uso Bizum es por redirección, sin integración, no requieren aplicar ningún cambio y el botón de pago se mostrará por defecto.
+
+ 
+
+Una vez concluidas las pruebas en entorno de test, deben responder a este correo para solicitar el pase a entorno real.
+
+Recordamos que para poder realizar la verificación de la pasarela en la página web, es necesario:
+
+La web operativa.
+Las imágenes de los productos estén cargadas.
+Diseñado el carrito de la compra.
+Contrato de alta de su comercio correctamente firmado y cumplimentado.
+(En caso de que tengan alguna duda al respecto de este último punto, pueden acceder a su aplicación de CaixaBank Now y verificar las operaciones pendientes de firma. En el caso de que no tengan acceso a CaixaBank Now pueden contactar con su gestor de la oficina y confirmar la solicitud de TPV).
+
+Adicionalmente, para poder proporcionarle un mejor soporte, agradeceríamos que respondan a este correo y nos indicaran la plataforma y tipo de integración que van a implementar en su e-Commerce.
+
+Tipo de Integración	Plataforma
+Hosted o Redirección	Desarrollo propio
+H2H o Webservice	Prestashop
+JS (Javascript)	Woocommerce
+CMS o Plugin	Magento
+ 	Opencart
+
+Muchas gracias, quedamos a su disposición.

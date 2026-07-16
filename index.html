@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/calendar.css">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"TouristTrip","name":"Pescaturismo — De la Mar a sa Taula","description":"Salida al mar con pescadores artesanales menorquines desde Es Castell, Menorca.","touristType":"Cultural","provider":{"@type":"LocalBusiness","name":"De la Mar a sa Taula","address":{"@type":"PostalAddress","streetAddress":"Calle Sant Jaume","addressLocality":"Es Castell","addressRegion":"Menorca","addressCountry":"ES"}}}
   </script>
@@ -29,6 +30,7 @@
       <a href="#modalidades" class="nav-link">Modalidades</a>
       <a href="#equipo" class="nav-link">Equipo</a>
       <a href="#tarifas" class="nav-link">Tarifas</a>
+      <a href="#calendario" class="nav-link">Calendario</a>
       <a href="#reserva" class="nav-cta">Reservar</a>
       <span class="lang-switch" title="Próximamente">EN</span>
     </nav>
@@ -44,6 +46,7 @@
   <a href="#modalidades">Modalidades</a>
   <a href="#equipo">Equipo</a>
   <a href="#tarifas">Tarifas</a>
+  <a href="#calendario">Calendario</a>
   <a href="#reserva">Reservar</a>
 </div>
 
@@ -358,13 +361,64 @@
   </div>
 </section>
 
+<!-- CALENDARIO DE DISPONIBILIDAD -->
+<section class="section calendario" id="calendario">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">Disponibilidad</span>
+      <h2 class="section-title">Elige tu día</h2>
+      <p class="section-desc">Consulta las fechas con salidas disponibles y selecciona la que mejor te venga.</p>
+    </div>
+    <div class="cal-container reveal">
+      <div class="cal-nav">
+        <button id="cal-prev" aria-label="Mes anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h3 id="cal-title"></h3>
+        <button id="cal-next" aria-label="Mes siguiente">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+      <div class="cal-weekdays">
+        <span class="cal-weekday">Lun</span>
+        <span class="cal-weekday">Mar</span>
+        <span class="cal-weekday">Mié</span>
+        <span class="cal-weekday">Jue</span>
+        <span class="cal-weekday">Vie</span>
+        <span class="cal-weekday">Sáb</span>
+        <span class="cal-weekday">Dom</span>
+      </div>
+      <div class="cal-days" id="cal-days"></div>
+      <div class="cal-legend">
+        <div class="cal-legend-item">
+          <span class="cal-legend-dot" style="background: var(--cal-available)"></span>
+          Amanecer
+        </div>
+        <div class="cal-legend-item">
+          <span class="cal-legend-dot" style="background: var(--cal-today)"></span>
+          Atardecer
+        </div>
+        <div class="cal-legend-item">
+          <span class="cal-legend-dot" style="background: var(--cal-few)"></span>
+          Pocas plazas
+        </div>
+        <div class="cal-legend-item">
+          <span class="cal-legend-dot" style="background: var(--cal-full)"></span>
+          Completo
+        </div>
+      </div>
+    </div>
+    <div class="cal-detail" id="cal-detail"></div>
+  </div>
+</section>
+
 <!-- RESERVA -->
 <section class="section reserva" id="reserva">
   <div class="container">
     <div class="section-header reveal">
       <span class="section-label">Reservar salida</span>
-      <h2 class="section-title">Solicita tu plaza</h2>
-      <p class="section-desc">Rellena el formulario y nos pondremos en contacto contigo para confirmar disponibilidad.</p>
+      <h2 class="section-title">Completa tu reserva</h2>
+      <p class="section-desc">Selecciona un día en el calendario de arriba o rellena el formulario directamente. Tras enviar, pasarás a la pasarela de pago segura.</p>
     </div>
     <form class="reserva-form reveal" id="reserva-form" novalidate>
       <div class="form-grid">
@@ -416,7 +470,7 @@
         </div>
       </div>
       <div class="form-submit">
-        <button type="submit" class="btn btn-primary btn-submit">Enviar solicitud de reserva</button>
+        <button type="submit" class="btn btn-primary btn-submit">Reservar y pagar</button>
       </div>
       <p class="cancel-policy">Si el mar no acompaña, la salida se reprograma o se reembolsa. Así de sencillo.</p>
     </form>
@@ -484,5 +538,7 @@
 </footer>
 
 <script src="scripts/main.js"></script>
+<script src="scripts/calendar.js"></script>
+<script src="scripts/payment.js"></script>
 </body>
 </html>
