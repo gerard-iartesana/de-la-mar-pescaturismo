@@ -32,7 +32,7 @@ module.exports = async function handler(req, res) {
   if (mod === 'manana') {
     importe_cents = 12000 * personasNum; // 120€ × personas
   } else if (mod === 'tarde') {
-    importe_cents = 35000; // 350€ fixed
+    importe_cents = 35000 * personasNum; // 350€ × personas
   }
 
   // Init Supabase with service role key (bypasses RLS)

@@ -50,7 +50,7 @@
     // Collect data
     const modalidad = form.querySelector('#modalidad').value;
     const personas = parseInt(form.querySelector('#personas').value, 10) || 1;
-    const importe = modalidad === 'manana' ? 12000 * personas : 35000;
+    const importe = modalidad === 'manana' ? 12000 * personas : 35000 * personas;
 
     const reserva = {
       nombre: form.querySelector('#nombre').value.trim(),
@@ -110,10 +110,10 @@
       ? new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
       : '';
     const modalidadLabel = modalidad === 'manana' ? 'Amanecer y pesca' : 'Demostración al atardecer';
-    const importeTotal = modalidad === 'manana' ? reserva.personas * 120 : 350;
+    const importeTotal = modalidad === 'manana' ? reserva.personas * 120 : reserva.personas * 350;
     const importeText = modalidad === 'manana'
       ? `${reserva.personas} × 120 € = ${importeTotal} €`
-      : '350 € (por barco)';
+      : `${reserva.personas} × 350 € = ${reserva.personas * 350} €`;
 
     // Replace form with confirmation
     const container = form.closest('.container');

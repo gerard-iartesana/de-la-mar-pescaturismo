@@ -50,7 +50,7 @@ module.exports = async function handler(req, res) {
     if (modalidad === 'manana') {
       amount = 12000 * Number(personas); // 120€ per person
     } else if (modalidad === 'tarde') {
-      amount = 35000; // 350€ fixed per boat
+      amount = 35000 * personas; // 350€ × personas
     } else {
       return res.status(400).json({ error: 'Modalidad no válida' });
     }
