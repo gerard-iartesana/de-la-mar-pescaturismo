@@ -6,7 +6,7 @@
 const SUPABASE_URL = 'https://dazootyjaeqhgccpnbta.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhem9vdHlqYWVxaGdjY3BuYnRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMjc3OTgsImV4cCI6MjA5OTgwMzc5OH0.50mHio1P3arZxXQ-k05LSkvFNyBsRcMNiTVHFjLdGhw';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // --- State ---
 const state = {
@@ -58,7 +58,7 @@ const dayModalForm = $('#day-modal-form');
 // ============================================
 
 async function handleAuth() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
 
   if (session) {
     state.user = session.user;
@@ -68,7 +68,7 @@ async function handleAuth() {
   }
 
   // Listen for auth changes (e.g. redirect back from Google)
-  supabase.auth.onAuthStateChange(async (event, session) => {
+  sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
       state.user = session.user;
       await loadProfile();
@@ -81,7 +81,7 @@ async function handleAuth() {
 }
 
 async function signInWithGoogle() {
-  const { error } = await supabase.auth.signInWithOAuth({
+  const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: window.location.origin + '/admin.html',
@@ -91,7 +91,7 @@ async function signInWithGoogle() {
 }
 
 async function signOut() {
-  await supabase.auth.signOut();
+  await sb.auth.signOut();
   state.user = null;
   state.profile = null;
   showScreen('login');
@@ -100,7 +100,7 @@ async function signOut() {
 async function loadProfile() {
   if (!state.user) return;
 
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('profiles')
     .select('*')
     .eq('id', state.user.id)
@@ -270,7 +270,7 @@ async function loadCalendar() {
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
 
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('disponibilidad')
     .select('*')
     .gte('fecha', formatDate(firstDay))
@@ -462,7 +462,7 @@ async function addSlot() {
     return;
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('disponibilidad')
     .insert({
       fecha: dateStr,
@@ -486,7 +486,7 @@ async function addSlot() {
 }
 
 async function cancelSlot(id, dateStr) {
-  const { error } = await supabase
+  const { error } = await sb
     .from('disponibilidad')
     .update({ estado: 'cancelado' })
     .eq('id', id);
@@ -502,7 +502,7 @@ async function cancelSlot(id, dateStr) {
 }
 
 async function restoreSlot(id, dateStr) {
-  const { error } = await supabase
+  const { error } = await sb
     .from('disponibilidad')
     .update({ estado: 'disponible' })
     .eq('id', id);
@@ -520,7 +520,7 @@ async function restoreSlot(id, dateStr) {
 async function deleteSlot(id, dateStr) {
   if (!confirm('¿Seguro que quieres eliminar este turno? Esta acción no se puede deshacer.')) return;
 
-  const { error } = await supabase
+  const { error } = await sb
     .from('disponibilidad')
     .delete()
     .eq('id', id);
@@ -645,7 +645,7 @@ function getEstadoClass(estado) {
 async function loadUsers() {
   usersGrid.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><span>Cargando usuarios…</span></div>';
 
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('profiles')
     .select('*')
     .order('created_at', { ascending: false });
@@ -704,7 +704,7 @@ async function changeUserRole(userId, newRole, userName) {
     return;
   }
 
-  const { error } = await supabase
+  const { error } = await sb
     .from('profiles')
     .update({ rol: newRole })
     .eq('id', userId);
