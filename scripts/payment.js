@@ -110,8 +110,9 @@
       ? new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
       : '';
     const modalidadLabel = modalidad === 'manana' ? 'Amanecer y pesca' : 'Demostración al atardecer';
-    const importe = modalidad === 'manana'
-      ? `${reserva.personas} × 120 € = ${reserva.personas * 120} €`
+    const importeTotal = modalidad === 'manana' ? reserva.personas * 120 : 350;
+    const importeText = modalidad === 'manana'
+      ? `${reserva.personas} × 120 € = ${importeTotal} €`
       : '350 € (por barco)';
 
     // Replace form with confirmation
@@ -120,41 +121,49 @@
 
     formSection.innerHTML = `
       <div style="text-align: center; padding: 2rem 0;">
-        <div style="width: 72px; height: 72px; border-radius: 50%; background: var(--success, #2d8a56); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; animation: confirmPop 0.4s ease;">
+        <div style="width: 72px; height: 72px; border-radius: 50%; background: #2d8a56; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; animation: confirmPop 0.4s ease;">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
         </div>
-        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: var(--azul-texto, #1a2d40); margin-bottom: 0.5rem;">¡Reserva recibida!</h3>
-        <p style="color: var(--azul-texto, #1a2d40); opacity: 0.7; margin-bottom: 1.5rem; max-width: 480px; margin-left: auto; margin-right: auto;">
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: #1a2d40; margin-bottom: 0.5rem;">¡Reserva recibida!</h3>
+        <p style="color: #3a4d5e; margin-bottom: 1.5rem; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.5;">
           Hemos registrado tu solicitud. Nos pondremos en contacto contigo para confirmar la disponibilidad.
         </p>
-        <div style="background: rgba(11,29,46,0.04); border-radius: 12px; padding: 1.25rem; max-width: 400px; margin: 0 auto 1.5rem; text-align: left;">
-          <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid rgba(0,0,0,0.06);">
-            <span style="opacity: 0.6; font-size: 0.85rem;">Nombre</span>
-            <span style="font-weight: 600; font-size: 0.85rem;">${escapeHtml(reserva.nombre)}</span>
+        <div style="background: #f0ede6; border-radius: 12px; padding: 1.25rem 1.5rem; max-width: 420px; margin: 0 auto 1.5rem; text-align: left; border: 1px solid #d4c9b8;">
+          <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #ccc3b3;">
+            <span style="color: #5a6a78; font-size: 0.88rem; font-weight: 500;">Nombre</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: #1a2d40;">${escapeHtml(reserva.nombre)}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid rgba(0,0,0,0.06);">
-            <span style="opacity: 0.6; font-size: 0.85rem;">Modalidad</span>
-            <span style="font-weight: 600; font-size: 0.85rem;">${modalidadLabel}</span>
+          <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #ccc3b3;">
+            <span style="color: #5a6a78; font-size: 0.88rem; font-weight: 500;">Modalidad</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: #1a2d40;">${modalidadLabel}</span>
           </div>
-          ${fechaFormatted ? `<div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid rgba(0,0,0,0.06);">
-            <span style="opacity: 0.6; font-size: 0.85rem;">Fecha</span>
-            <span style="font-weight: 600; font-size: 0.85rem; text-transform: capitalize;">${fechaFormatted}</span>
+          ${fechaFormatted ? `<div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #ccc3b3;">
+            <span style="color: #5a6a78; font-size: 0.88rem; font-weight: 500;">Fecha</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: #1a2d40; text-transform: capitalize;">${fechaFormatted}</span>
           </div>` : ''}
-          <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid rgba(0,0,0,0.06);">
-            <span style="opacity: 0.6; font-size: 0.85rem;">Personas</span>
-            <span style="font-weight: 600; font-size: 0.85rem;">${reserva.personas}</span>
+          <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #ccc3b3;">
+            <span style="color: #5a6a78; font-size: 0.88rem; font-weight: 500;">Personas</span>
+            <span style="font-weight: 700; font-size: 0.88rem; color: #1a2d40;">${reserva.personas}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; padding: 0.4rem 0;">
-            <span style="opacity: 0.6; font-size: 0.85rem;">Importe</span>
-            <span style="font-weight: 700; font-size: 0.85rem; color: var(--acento, #c97b3a);">${importe}</span>
+          <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+            <span style="color: #5a6a78; font-size: 0.88rem; font-weight: 500;">Importe</span>
+            <span style="font-weight: 800; font-size: 1rem; color: #c97b3a;">${importeText}</span>
           </div>
         </div>
-        <p style="font-size: 0.82rem; color: var(--azul-texto, #1a2d40); opacity: 0.5; margin-bottom: 1rem;">
-          El pago se puede realizar online o el mismo día de la salida.
+        <p style="font-size: 0.85rem; color: #5a6a78; margin-bottom: 1.5rem; line-height: 1.4;">
+          Puedes pagar ahora online o el mismo día de la salida.
         </p>
-        <a href="#modalidades" class="btn btn-primary" style="display: inline-block; text-decoration: none;">Volver al inicio</a>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a href="/api/payment/init?amount=${importeTotal * 100}&order=PES${Date.now().toString().slice(-8)}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.85rem 2rem; font-weight: 600;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Pagar ahora
+          </a>
+          <a href="#modalidades" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.85rem 2rem; font-weight: 600; background: transparent; color: #1a2d40; border: 2px solid #d4c9b8;">
+            Volver al inicio
+          </a>
+        </div>
       </div>
       <style>
         @keyframes confirmPop {
