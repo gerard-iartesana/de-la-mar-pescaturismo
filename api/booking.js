@@ -102,23 +102,23 @@ module.exports = async function handler(req, res) {
 
     // --- Step 3: Update plazas_reservadas ---
     if (dispId) {
-      await supabase.rpc('increment_plazas', { disp_id: dispId, amount: personasNum }).catch(() => {
-        // Fallback: manual update if RPC doesn't exist
-        supabase
+      try {
+        const { data: d } = await supabase
           .from('disponibilidad')
           .select('plazas_reservadas')
           .eq('id', dispId)
-          .single()
-          .then(({ data: d }) => {
-            if (d) {
-              supabase
-                .from('disponibilidad')
-                .update({ plazas_reservadas: (d.plazas_reservadas || 0) + personasNum })
-                .eq('id', dispId)
-                .then(() => {});
-            }
-          });
-      });
+          .single();
+
+        if (d) {
+          await supabase
+            .from('disponibilidad')
+            .update({ plazas_reservadas: (d.plazas_reservadas || 0) + personasNum })
+            .eq('id', dispId);
+        }
+      } catch (updateErr) {
+        console.error('Error updating plazas:', updateErr);
+        // Don't block the booking response
+      }
     }
 
     return res.status(200).json({
@@ -129,7 +129,7 @@ module.exports = async function handler(req, res) {
     });
 
   } catch (err) {
-    console.error('Booking error:', err);
-    return res.status(500).json({ error: 'Error interno del servidor' });
+    console.error('Booking error:', err.message, err.stack);
+    return res.status(500).json({ error: 'Error interno del servidor: ' + (err.message || 'desconocido') });
   }
 };
