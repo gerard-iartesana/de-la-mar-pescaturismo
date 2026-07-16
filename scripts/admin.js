@@ -553,7 +553,7 @@ async function loadReservas() {
   reservasBody.innerHTML = '<tr><td colspan="8"><div class="loading-spinner"><div class="spinner"></div><span>Cargando reservas…</span></div></td></tr>';
 
   // Build query
-  let query = supabase
+  let query = sb
     .from('reservas')
     .select('*, disponibilidad!inner(fecha, modalidad)')
     .order('created_at', { ascending: false });
