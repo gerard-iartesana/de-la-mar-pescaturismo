@@ -1,5 +1,6 @@
 // =============================================
 // BOOKING API — Save reservation via service key
+// Automatically creates disponibilidad if needed
 // =============================================
 
 const { createClient } = require('@supabase/supabase-js');
@@ -26,10 +27,11 @@ module.exports = async function handler(req, res) {
 
   // Calculate amount
   const personasNum = parseInt(personas, 10) || 1;
+  const mod = modalidad || 'manana';
   let importe_cents = 0;
-  if (modalidad === 'manana') {
+  if (mod === 'manana') {
     importe_cents = 12000 * personasNum; // 120€ × personas
-  } else if (modalidad === 'tarde') {
+  } else if (mod === 'tarde') {
     importe_cents = 35000; // 350€ fixed
   }
 
@@ -40,6 +42,44 @@ module.exports = async function handler(req, res) {
   );
 
   try {
+    // --- Step 1: Resolve disponibilidad ---
+    let dispId = disponibilidad_id || null;
+
+    if (!dispId && fecha) {
+      // Check if a disponibilidad entry already exists for this date + modalidad
+      const { data: existing } = await supabase
+        .from('disponibilidad')
+        .select('id, plazas_reservadas')
+        .eq('fecha', fecha)
+        .eq('modalidad', mod)
+        .maybeSingle();
+
+      if (existing) {
+        dispId = existing.id;
+      } else {
+        // Create a new disponibilidad entry for this date
+        const { data: newDisp, error: dispError } = await supabase
+          .from('disponibilidad')
+          .insert({
+            fecha: fecha,
+            modalidad: mod,
+            plazas_totales: mod === 'manana' ? 6 : 10,
+            plazas_reservadas: 0,
+            estado: 'disponible'
+          })
+          .select()
+          .single();
+
+        if (dispError) {
+          console.error('Error creating disponibilidad:', dispError);
+          // Continue without disponibilidad — don't block the booking
+        } else {
+          dispId = newDisp.id;
+        }
+      }
+    }
+
+    // --- Step 2: Insert reservation ---
     const { data, error } = await supabase
       .from('reservas')
       .insert({
@@ -50,7 +90,7 @@ module.exports = async function handler(req, res) {
         mensaje: mensaje || '',
         estado_pago: 'pendiente',
         importe_cents,
-        disponibilidad_id: disponibilidad_id || null
+        disponibilidad_id: dispId
       })
       .select()
       .single();
@@ -60,9 +100,31 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'Error al guardar la reserva: ' + error.message });
     }
 
-    return res.status(200).json({ 
-      success: true, 
+    // --- Step 3: Update plazas_reservadas ---
+    if (dispId) {
+      await supabase.rpc('increment_plazas', { disp_id: dispId, amount: personasNum }).catch(() => {
+        // Fallback: manual update if RPC doesn't exist
+        supabase
+          .from('disponibilidad')
+          .select('plazas_reservadas')
+          .eq('id', dispId)
+          .single()
+          .then(({ data: d }) => {
+            if (d) {
+              supabase
+                .from('disponibilidad')
+                .update({ plazas_reservadas: (d.plazas_reservadas || 0) + personasNum })
+                .eq('id', dispId)
+                .then(() => {});
+            }
+          });
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
       reserva_id: data.id,
+      disponibilidad_id: dispId,
       message: 'Reserva registrada correctamente'
     });
 
