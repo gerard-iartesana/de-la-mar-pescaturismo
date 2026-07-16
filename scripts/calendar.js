@@ -58,8 +58,9 @@
     const lastDayStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
 
     try {
+      // Fetch disponibilidad with reservation count
       const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/disponibilidad?fecha=gte.${firstDay}&fecha=lte.${lastDayStr}&select=*`,
+        `${SUPABASE_URL}/rest/v1/disponibilidad?fecha=gte.${firstDay}&fecha=lte.${lastDayStr}&select=*,reservas(count)`,
         {
           headers: {
             'apikey': SUPABASE_ANON,
@@ -71,9 +72,12 @@
       if (!res.ok) throw new Error('Error fetching');
       const data = await res.json();
 
-      // Group by date
+      // Group by date, include reservation count
       const grouped = {};
       data.forEach(slot => {
+        // Extract reservation count from the joined data
+        const resCount = (slot.reservas && slot.reservas[0]) ? slot.reservas[0].count : 0;
+        slot._reservaCount = parseInt(resCount, 10) || 0;
         if (!grouped[slot.fecha]) grouped[slot.fecha] = [];
         grouped[slot.fecha].push(slot);
       });
@@ -154,14 +158,15 @@
       let dotsHtml = '';
       let hasAvailable = false;
 
+      // Count actual reservations (not personas)
       let totalReservas = 0;
       slots.forEach(slot => {
         if (slot.estado === 'cancelado') return;
-        totalReservas += slot.plazas_reservadas || 0;
+        totalReservas += slot._reservaCount || 0;
         hasAvailable = true;
       });
 
-      let dotClass = 'available'; // default green
+      let dotClass = 'available'; // default green — no reservations
       if (totalReservas >= 3) {
         dotClass = 'reservas-3';
       } else if (totalReservas === 2) {
