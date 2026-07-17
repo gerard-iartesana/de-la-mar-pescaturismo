@@ -421,8 +421,15 @@
     <div class="section-header reveal">
       <span class="section-label">Reservar salida</span>
       <h2 class="section-title">Completa tu reserva</h2>
-      <p class="section-desc">Selecciona un día en el calendario de arriba o rellena el formulario directamente. El pago se puede realizar online o el mismo día de la salida. <br><span style="display:inline-block;margin-top:0.5rem;font-weight:600;color:var(--azul-texto);">¿Ya tienes una reserva? <a href="#" id="body-lookup-btn" style="color:var(--acento,#c97b3a);text-decoration:underline;">Consulta su estado aquí</a></span></p>
+      <p class="section-desc">Selecciona un día en el calendario de arriba o rellena el formulario directamente. El pago se puede realizar online o el mismo día de la salida.</p>
     </div>
+    
+    <!-- TABS -->
+    <div class="booking-tabs reveal" style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid #d4c9b8; padding-bottom: 0px; max-width: 600px; margin-left: auto; margin-right: auto; justify-content: center;">
+      <button id="tab-new-booking" class="booking-tab active" style="font-family: inherit; font-size: 1.1rem; font-weight: bold; background: none; border: none; cursor: pointer; padding: 0.75rem 1.25rem; color: var(--azul-texto); border-bottom: 3px solid var(--acento); transition: all 0.2s; outline: none;">Nueva reserva</button>
+      <button id="tab-lookup-booking" class="booking-tab" style="font-family: inherit; font-size: 1.1rem; font-weight: bold; background: none; border: none; cursor: pointer; padding: 0.75rem 1.25rem; color: #5a6a78; border-bottom: 3px solid transparent; transition: all 0.2s; outline: none;">Consultar reserva</button>
+    </div>
+
     <form class="reserva-form reveal" id="reserva-form" novalidate>
       <div class="form-grid">
         <div class="form-group">
@@ -441,18 +448,15 @@
           <span class="error-msg">El teléfono es obligatorio</span>
         </div>
         <div class="form-group">
-          <label for="modalidad">Modalidad</label>
-          <select id="modalidad" name="modalidad" required>
-            <option value="">Selecciona una opción</option>
+          <label for="modalidad">Modalidad preferida</label>
+          <select id="modalidad" name="modalidad">
             <option value="manana">Mañana — Amanecer y pesca</option>
-            <option value="tarde">Tarde — Demostración</option>
-
+            <option value="tarde">Tarde — Demostración al atardecer</option>
           </select>
-          <span class="error-msg">Selecciona una modalidad</span>
         </div>
         <div class="form-group">
           <label for="fecha">Fecha preferida</label>
-          <input type="date" id="fecha" name="fecha" required>
+          <input type="text" id="fecha" name="fecha" required readonly placeholder="Selecciona en el calendario" style="cursor: pointer;">
           <span class="error-msg">Selecciona una fecha</span>
         </div>
         <div class="form-group">
@@ -477,6 +481,26 @@
       </div>
       <p class="cancel-policy">Si el mar no acompaña, la salida se reprograma o se reembolsa. Así de sencillo.</p>
     </form>
+
+    <!-- LOOKUP FORM INLINE -->
+    <div class="reserva-form reveal" id="lookup-inline-container" style="display: none; padding: 2rem; background: #ffffff; border-radius: 16px; border: 1px solid #d4c9b8; box-shadow: 0 8px 32px rgba(11,29,46,0.04); max-width: 800px; margin: 0 auto;">
+      <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: #1a2d40; margin-bottom: 0.5rem;">Consultar Reserva</h3>
+      <p style="color: #5a6a78; font-size: 0.9rem; margin-bottom: 1.5rem;">Introduce el localizador de tu reserva y tu email para consultar el estado o realizar el pago.</p>
+      
+      <form id="lookup-form" class="lookup-form" style="max-width: 500px; margin: 0;">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="lookup-order" style="display: block; font-size: 0.85rem; font-weight: 600; color: #1a2d40; margin-bottom: 0.25rem;">Localizador (Nº Reserva)</label>
+          <input type="text" id="lookup-order" required placeholder="Ej: 1234PES56789" style="width: 100%; padding: 0.75rem; border: 2px solid #d4c9b8; border-radius: 8px; font-family: inherit; font-size: 0.95rem; text-transform: uppercase;">
+        </div>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label for="lookup-email" style="display: block; font-size: 0.85rem; font-weight: 600; color: #1a2d40; margin-bottom: 0.25rem;">Email del cliente</label>
+          <input type="email" id="lookup-email" required placeholder="tuemail@ejemplo.com" style="width: 100%; padding: 0.75rem; border: 2px solid #d4c9b8; border-radius: 8px; font-family: inherit; font-size: 0.95rem;">
+        </div>
+        <button type="submit" class="btn btn-primary" style="padding: 0.85rem 1.5rem; font-weight: 600; min-width: 200px;">Consultar estado</button>
+      </form>
+
+      <div id="lookup-result" style="margin-top: 1.5rem; display: none;"></div>
+    </div>
   </div>
 </section>
 
@@ -539,29 +563,6 @@
     </div>
   </div>
 </footer>
-
-<!-- LOOKUP MODAL -->
-<div id="lookup-modal" class="lookup-modal">
-  <div class="lookup-modal-content">
-    <button class="lookup-modal-close" id="lookup-modal-close">&times;</button>
-    <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: #1a2d40; margin-bottom: 0.5rem; text-align: center;">Consultar Reserva</h3>
-    <p style="color: #5a6a78; font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">Introduce el localizador de tu reserva y tu email para consultar el estado o realizar el pago.</p>
-    
-    <form id="lookup-form" class="lookup-form">
-      <div class="form-group" style="margin-bottom: 1rem;">
-        <label for="lookup-order" style="display: block; font-size: 0.85rem; font-weight: 600; color: #1a2d40; margin-bottom: 0.25rem;">Localizador (Nº Reserva)</label>
-        <input type="text" id="lookup-order" required placeholder="Ej: 1234PES56789" style="width: 100%; padding: 0.75rem; border: 2px solid #d4c9b8; border-radius: 8px; font-family: inherit; font-size: 0.95rem; text-transform: uppercase;">
-      </div>
-      <div class="form-group" style="margin-bottom: 1.5rem;">
-        <label for="lookup-email" style="display: block; font-size: 0.85rem; font-weight: 600; color: #1a2d40; margin-bottom: 0.25rem;">Email del cliente</label>
-        <input type="email" id="lookup-email" required placeholder="tuemail@ejemplo.com" style="width: 100%; padding: 0.75rem; border: 2px solid #d4c9b8; border-radius: 8px; font-family: inherit; font-size: 0.95rem;">
-      </div>
-      <button type="submit" class="btn btn-primary btn-block" style="padding: 0.85rem 1.5rem; font-weight: 600; width: 100%;">Consultar estado</button>
-    </form>
-
-    <div id="lookup-result" style="margin-top: 1.5rem; display: none;"></div>
-  </div>
-</div>
 
 <script src="scripts/main.js"></script>
 <script src="scripts/calendar.js"></script>

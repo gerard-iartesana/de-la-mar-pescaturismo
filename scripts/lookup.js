@@ -1,62 +1,85 @@
 // =============================================
-// BOOKING LOOKUP FRONTEND HANDLER
+// BOOKING LOOKUP FRONTEND HANDLER — INLINE TABS
 // =============================================
 
 (function () {
   'use strict';
 
   function initLookup() {
-    // Buttons to open modal
-    const openBtn = document.getElementById('open-lookup-btn');
-    const mobileOpenBtn = document.getElementById('mobile-open-lookup-btn');
-    const modal = document.getElementById('lookup-modal');
-    const closeBtn = document.getElementById('lookup-modal-close');
+    // Tabs elements
+    const tabNew = document.getElementById('tab-new-booking');
+    const tabLookup = document.getElementById('tab-lookup-booking');
+    
+    // Forms containers
+    const newForm = document.getElementById('reserva-form');
+    const lookupContainer = document.getElementById('lookup-inline-container');
+    
+    // Form and Results elements
     const form = document.getElementById('lookup-form');
     const resultDiv = document.getElementById('lookup-result');
 
+    // Trigger links
+    const openBtn = document.getElementById('open-lookup-btn');
+    const mobileOpenBtn = document.getElementById('mobile-open-lookup-btn');
     const bodyBtn = document.getElementById('body-lookup-btn');
 
-    if (!modal) return;
+    if (!tabNew || !tabLookup) return;
 
-    const openModal = (e) => {
+    // --- Tab Toggle Functions ---
+    const activateNewBooking = () => {
+      tabNew.classList.add('active');
+      tabNew.style.color = 'var(--azul-texto)';
+      tabNew.style.borderBottomColor = 'var(--acento)';
+
+      tabLookup.classList.remove('active');
+      tabLookup.style.color = '#5a6a78';
+      tabLookup.style.borderBottomColor = 'transparent';
+
+      if (newForm) newForm.style.display = 'block';
+      if (lookupContainer) lookupContainer.style.display = 'none';
+    };
+
+    const activateLookupBooking = () => {
+      tabLookup.classList.add('active');
+      tabLookup.style.color = 'var(--azul-texto)';
+      tabLookup.style.borderBottomColor = 'var(--acento)';
+
+      tabNew.classList.remove('active');
+      tabNew.style.color = '#5a6a78';
+      tabNew.style.borderBottomColor = 'transparent';
+
+      if (newForm) newForm.style.display = 'none';
+      if (lookupContainer) lookupContainer.style.display = 'block';
+    };
+
+    // Bind tab clicks
+    tabNew.addEventListener('click', activateNewBooking);
+    tabLookup.addEventListener('click', activateLookupBooking);
+
+    // --- External trigger functions ---
+    const triggerLookupAndScroll = (e) => {
       if (e) e.preventDefault();
-      modal.style.display = 'flex';
-      // Force reflow for opacity transition
-      modal.offsetHeight;
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden'; // Lock background scroll
+      activateLookupBooking();
+      const section = document.getElementById('reserva');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     };
 
-    const closeModal = () => {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-      setTimeout(() => {
-        modal.style.display = 'none';
-        // Reset form and result
-        if (form) form.reset();
-        if (resultDiv) {
-          resultDiv.innerHTML = '';
-          resultDiv.style.display = 'none';
-        }
-      }, 300);
-    };
+    if (openBtn) openBtn.addEventListener('click', triggerLookupAndScroll);
+    if (bodyBtn) bodyBtn.addEventListener('click', triggerLookupAndScroll);
+    if (mobileOpenBtn) {
+      mobileOpenBtn.addEventListener('click', (e) => {
+        triggerLookupAndScroll(e);
+        // Close mobile hamburger menu
+        const mobileNav = document.querySelector('.mobile-nav');
+        const hamburger = document.querySelector('.hamburger');
+        if (mobileNav) mobileNav.classList.remove('active');
+        if (hamburger) hamburger.classList.remove('active');
+      });
+    }
 
-    if (openBtn) openBtn.addEventListener('click', openModal);
-    if (bodyBtn) bodyBtn.addEventListener('click', openModal);
-    if (mobileOpenBtn) mobileOpenBtn.addEventListener('click', (e) => {
-      openModal(e);
-      // Close mobile menu if open
-      const mobileNav = document.querySelector('.mobile-nav');
-      const hamburger = document.querySelector('.hamburger');
-      if (mobileNav) mobileNav.classList.remove('active');
-      if (hamburger) hamburger.classList.remove('active');
-    });
-
-    if (closeBtn) closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-
+    // --- Lookup Submission Handler ---
     if (form) {
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -126,8 +149,8 @@
       let payButtonHtml = '';
       if (r.estado_pago === 'pendiente') {
         payButtonHtml = `
-          <div style="text-align: center; margin-top: 1.25rem;">
-            <a href="/api/payment/init?amount=${r.importe_cents}&order=${r.localizador}" class="btn btn-primary btn-block" style="display: block; text-decoration: none; padding: 0.85rem; font-weight: 600; text-align: center;">
+          <div style="margin-top: 1.25rem;">
+            <a href="/api/payment/init?amount=${r.importe_cents}&order=${r.localizador}" class="btn btn-primary" style="display: inline-block; text-decoration: none; padding: 0.85rem 2rem; font-weight: 600; text-align: center;">
               Pagar ahora online (${totalEur} €)
             </a>
           </div>
@@ -136,33 +159,33 @@
 
       resultDiv.innerHTML = `
         <h4 style="font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: #1a2d40; margin: 1.5rem 0 0.5rem;">Detalles de la Reserva</h4>
-        <div class="lookup-result-card">
-          <div class="lookup-result-row">
-            <span class="lookup-result-label">Localizador</span>
-            <span class="lookup-result-val" style="color:#c97b3a;">${r.localizador}</span>
+        <div class="lookup-result-card" style="background:#f0ede6;border-radius:12px;padding:1.25rem 1.5rem;max-width:500px;border:1px solid #d4c9b8;">
+          <div class="lookup-result-row" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #ccc3b3;">
+            <span class="lookup-result-label" style="color:#5a6a78;font-weight:500;">Localizador</span>
+            <span class="lookup-result-val" style="font-weight:800;color:#c97b3a;">${r.localizador}</span>
           </div>
-          <div class="lookup-result-row">
-            <span class="lookup-result-label">Cliente</span>
-            <span class="lookup-result-val">${escapeHtml(r.nombre)}</span>
+          <div class="lookup-result-row" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #ccc3b3;">
+            <span class="lookup-result-label" style="color:#5a6a78;font-weight:500;">Cliente</span>
+            <span class="lookup-result-val" style="font-weight:700;color:#1a2d40;">${escapeHtml(r.nombre)}</span>
           </div>
-          <div class="lookup-result-row">
-            <span class="lookup-result-label">Modalidad</span>
-            <span class="lookup-result-val">${modLabel}</span>
+          <div class="lookup-result-row" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #ccc3b3;">
+            <span class="lookup-result-label" style="color:#5a6a78;font-weight:500;">Modalidad</span>
+            <span class="lookup-result-val" style="font-weight:700;color:#1a2d40;">${modLabel}</span>
           </div>
-          <div class="lookup-result-row">
-            <span class="lookup-result-label">Fecha</span>
-            <span class="lookup-result-val" style="text-transform: capitalize;">${fechaFormatted}</span>
+          <div class="lookup-result-row" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #ccc3b3;">
+            <span class="lookup-result-label" style="color:#5a6a78;font-weight:500;">Fecha</span>
+            <span class="lookup-result-val" style="font-weight:700;color:#1a2d40;text-transform:capitalize;">${fechaFormatted}</span>
           </div>
-          <div class="lookup-result-row">
-            <span class="lookup-result-label">Personas</span>
-            <span class="lookup-result-val">${r.personas}</span>
+          <div class="lookup-result-row" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #ccc3b3;">
+            <span class="lookup-result-label" style="color:#5a6a78;font-weight:500;">Personas</span>
+            <span class="lookup-result-val" style="font-weight:700;color:#1a2d40;">${r.personas}</span>
           </div>
-          <div class="lookup-result-row">
-            <span class="lookup-result-label">Importe</span>
-            <span class="lookup-result-val">${totalEur} €</span>
+          <div class="lookup-result-row" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #ccc3b3;">
+            <span class="lookup-result-label" style="color:#5a6a78;font-weight:500;">Importe</span>
+            <span class="lookup-result-val" style="font-weight:700;color:#1a2d40;">${totalEur} €</span>
           </div>
-          <div class="lookup-result-row">
-            <span class="lookup-result-label">Estado Pago</span>
+          <div class="lookup-result-row" style="display:flex;justify-content:space-between;padding:0.5rem 0;">
+            <span class="lookup-result-label" style="color:#5a6a78;font-weight:500;">Estado Pago</span>
             <span class="lookup-result-val" style="color: ${estadoColor}; font-weight: 800;">${estadoLabel}</span>
           </div>
         </div>
