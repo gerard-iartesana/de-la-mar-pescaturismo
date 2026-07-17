@@ -154,6 +154,8 @@
 
       if (dayEl.classList.contains('past')) return;
 
+      console.log('[Calendar] Processing date:', dateStr, 'slots:', slots.map(s => ({modalidad: s.modalidad, reservadas: s.plazas_reservadas, estado: s.estado})));
+
       let hasAvailable = false;
 
       // Count total reservations using plazas_reservadas from disponibilidad
@@ -164,17 +166,21 @@
         hasAvailable = true;
       });
 
-      // Determine dot color based on booking load
-      let dotClass = 'available'; // green — no bookings
+      // Determine bar style based on booking load
+      let barColor = '#5ec489'; // green — no bookings
+      let barWidth = '6px';
+      let barHeight = '6px';
+      let barRadius = '50%';
+
       if (totalReserved >= 7) {
-        dotClass = 'reservas-3';
+        barColor = '#dc3545'; barWidth = '85%'; barHeight = '5px'; barRadius = '3px';
       } else if (totalReserved >= 3) {
-        dotClass = 'reservas-2';
+        barColor = '#e88b2e'; barWidth = '24px'; barHeight = '5px'; barRadius = '3px';
       } else if (totalReserved >= 1) {
-        dotClass = 'reservas-1';
+        barColor = '#f0c929'; barWidth = '14px'; barHeight = '5px'; barRadius = '3px';
       }
 
-      dotsEl.innerHTML = `<span class="cal-dot ${dotClass}"></span>`;
+      dotsEl.innerHTML = `<span style="display:inline-block;background:${barColor};width:${barWidth};height:${barHeight};border-radius:${barRadius};"></span>`;
 
       if (hasAvailable) {
         dayEl.classList.add('has-slots');
