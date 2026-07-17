@@ -94,6 +94,7 @@
     const detailEl = document.getElementById('cal-detail');
     
     if (!titleEl || !daysEl) return;
+    console.log('[Calendar] renderCalendar called — will reset dots');
 
     titleEl.textContent = `${MONTHS_ES[currentMonth]} ${currentYear}`;
     if (detailEl) detailEl.classList.remove('visible');
@@ -180,7 +181,10 @@
         barColor = '#f0c929'; barWidth = '14px'; barHeight = '5px'; barRadius = '3px';
       }
 
-      dotsEl.innerHTML = `<span style="display:inline-block;background:${barColor};width:${barWidth};height:${barHeight};border-radius:${barRadius};"></span>`;
+      const newHtml = `<span style="display:inline-block;background:${barColor};width:${barWidth};height:${barHeight};border-radius:${barRadius};"></span>`;
+      console.log('[Calendar] Date:', dateStr, 'totalReserved:', totalReserved, 'color:', barColor, 'width:', barWidth, 'dotsEl:', dotsEl.id);
+      dotsEl.innerHTML = newHtml;
+      console.log('[Calendar] After set, dotsEl.innerHTML:', dotsEl.innerHTML);
 
       if (hasAvailable) {
         dayEl.classList.add('has-slots');
