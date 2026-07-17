@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/calendar.css">
+  <link rel="stylesheet" href="styles/lookup.css">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"TouristTrip","name":"Pescaturismo — De la Mar a sa Taula","description":"Salida al mar con pescadores artesanales menorquines desde Es Castell, Menorca.","touristType":"Cultural","provider":{"@type":"LocalBusiness","name":"De la Mar a sa Taula","address":{"@type":"PostalAddress","streetAddress":"Calle Sant Jaume","addressLocality":"Es Castell","addressRegion":"Menorca","addressCountry":"ES"}}}
   </script>
@@ -31,6 +32,7 @@
       <a href="#equipo" class="nav-link">Equipo</a>
       <a href="#tarifas" class="nav-link">Tarifas</a>
       <a href="#calendario" class="nav-link">Calendario</a>
+      <a href="#" id="open-lookup-btn" class="nav-link" style="margin-right: 0.5rem; font-weight: 500;">Mis Reservas</a>
       <a href="#reserva" class="nav-cta">Reservar</a>
       <span class="lang-switch" title="Próximamente">EN</span>
     </nav>
@@ -47,6 +49,7 @@
   <a href="#equipo">Equipo</a>
   <a href="#tarifas">Tarifas</a>
   <a href="#calendario">Calendario</a>
+  <a href="#" id="mobile-open-lookup-btn">Mis Reservas</a>
   <a href="#reserva">Reservar</a>
 </div>
 
@@ -537,8 +540,32 @@
   </div>
 </footer>
 
+<!-- LOOKUP MODAL -->
+<div id="lookup-modal" class="lookup-modal">
+  <div class="lookup-modal-content">
+    <button class="lookup-modal-close" id="lookup-modal-close">&times;</button>
+    <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: #1a2d40; margin-bottom: 0.5rem; text-align: center;">Consultar Reserva</h3>
+    <p style="color: #5a6a78; font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">Introduce el localizador de tu reserva y tu email para consultar el estado o realizar el pago.</p>
+    
+    <form id="lookup-form" class="lookup-form">
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label for="lookup-order" style="display: block; font-size: 0.85rem; font-weight: 600; color: #1a2d40; margin-bottom: 0.25rem;">Localizador (Nº Reserva)</label>
+        <input type="text" id="lookup-order" required placeholder="Ej: 1234PES56789" style="width: 100%; padding: 0.75rem; border: 2px solid #d4c9b8; border-radius: 8px; font-family: inherit; font-size: 0.95rem; text-transform: uppercase;">
+      </div>
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label for="lookup-email" style="display: block; font-size: 0.85rem; font-weight: 600; color: #1a2d40; margin-bottom: 0.25rem;">Email del cliente</label>
+        <input type="email" id="lookup-email" required placeholder="tuemail@ejemplo.com" style="width: 100%; padding: 0.75rem; border: 2px solid #d4c9b8; border-radius: 8px; font-family: inherit; font-size: 0.95rem;">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" style="padding: 0.85rem 1.5rem; font-weight: 600; width: 100%;">Consultar estado</button>
+    </form>
+
+    <div id="lookup-result" style="margin-top: 1.5rem; display: none;"></div>
+  </div>
+</div>
+
 <script src="scripts/main.js"></script>
 <script src="scripts/calendar.js"></script>
 <script src="scripts/payment.js"></script>
+<script src="scripts/lookup.js"></script>
 </body>
 </html>

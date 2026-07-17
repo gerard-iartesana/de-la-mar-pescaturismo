@@ -618,7 +618,7 @@ function renderReservas() {
         : '—';
 
       row.innerHTML = `
-        <td><strong>${escapeHtml(r.nombre)}</strong></td>
+        <td><strong>${escapeHtml(r.nombre)}</strong><div style="font-size:0.75rem;color:#c97b3a;font-weight:600;margin-top:2px;">${escapeHtml(r.redsys_order || '—')}</div></td>
         <td>${escapeHtml(r.email)}</td>
         <td>${escapeHtml(r.telefono || '—')}</td>
         <td style="text-align:center">${r.personas}</td>

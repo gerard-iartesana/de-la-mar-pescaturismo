@@ -90,6 +90,9 @@
         throw new Error(err.error || 'Error al guardar la reserva');
       }
 
+      const data = await res.json();
+      reserva.redsys_order = data.redsys_order;
+
       // Success — show confirmation
       showConfirmation(form, reserva);
 
@@ -128,9 +131,13 @@
         </div>
         <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: #1a2d40; margin-bottom: 0.5rem;">¡Reserva recibida!</h3>
         <p style="color: #3a4d5e; margin-bottom: 1.5rem; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.5;">
-          Hemos registrado tu solicitud. Nos pondremos en contacto contigo para confirmar la disponibilidad.
+          Hemos registrado tu solicitud. Te hemos enviado un email con los detalles. Nos pondremos en contacto contigo para confirmar la disponibilidad.
         </p>
         <div style="background: #f0ede6; border-radius: 12px; padding: 1.25rem 1.5rem; max-width: 420px; margin: 0 auto 1.5rem; text-align: left; border: 1px solid #d4c9b8;">
+          <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #ccc3b3; background: rgba(201,123,58,0.06); margin: -0.5rem -0.5rem 0.5rem; padding: 0.5rem; border-radius: 6px;">
+            <span style="color: #1a2d40; font-size: 0.88rem; font-weight: bold;">Localizador (Nº Reserva)</span>
+            <span style="font-weight: 900; font-size: 1rem; color: #c97b3a;">${reserva.redsys_order || '—'}</span>
+          </div>
           <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #ccc3b3;">
             <span style="color: #5a6a78; font-size: 0.88rem; font-weight: 500;">Nombre</span>
             <span style="font-weight: 700; font-size: 0.88rem; color: #1a2d40;">${escapeHtml(reserva.nombre)}</span>
@@ -156,7 +163,7 @@
           Puedes pagar ahora online o el mismo día de la salida.
         </p>
         <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-          <a href="/api/payment/init?amount=${importeTotal * 100}&order=PES${Date.now().toString().slice(-8)}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.85rem 2rem; font-weight: 600;">
+          <a href="/api/payment/init?amount=${importeTotal * 100}&order=${reserva.redsys_order}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.85rem 2rem; font-weight: 600;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
             Pagar ahora
           </a>
