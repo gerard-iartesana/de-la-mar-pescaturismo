@@ -360,9 +360,21 @@
     border-radius: 8px;
   }
   
-  .cal-dot {
+  .cal-dot.available {
     width: 5px;
     height: 5px;
+  }
+
+  .cal-dot.reservas-1 {
+    width: 12px;
+  }
+
+  .cal-dot.reservas-2 {
+    width: 20px;
+  }
+
+  .cal-dot.reservas-3 {
+    width: 80%;
   }
   
   .cal-legend {
