@@ -32,31 +32,53 @@ function generateOrderId() {
 }
 
 module.exports = async function handler(req, res) {
-  // Only allow POST
-  if (req.method !== 'POST') {
+  // Accept GET (from "Pagar ahora" button) and POST
+  if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
   try {
-    const { modalidad, personas, nombre, email, telefono, mensaje, disponibilidad_id } = req.body;
+    // Read params from query (GET) or body (POST)
+    const params = req.method === 'GET' ? req.query : req.body;
+    const { amount, order, reserva_id, modalidad, personas, nombre, email, telefono, mensaje, disponibilidad_id } = params;
 
-    // --- Validate required fields ---
-    if (!modalidad || !personas || !nombre || !email || !disponibilidad_id) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios' });
-    }
+    let finalAmount, finalOrder;
 
-    // --- Calculate amount in cents ---
-    let amount;
-    if (modalidad === 'manana') {
-      amount = 12000 * Number(personas); // 120€ per person
-    } else if (modalidad === 'tarde') {
-      amount = 35000 * personas; // 350€ × personas
+    if (amount && order) {
+      // --- Simple GET flow from "Pagar ahora" button ---
+      finalAmount = String(amount);
+      finalOrder = order;
+    } else if (modalidad && personas && nombre && email) {
+      // --- Full POST flow from booking ---
+      if (modalidad === 'manana') {
+        finalAmount = String(12000 * Number(personas));
+      } else if (modalidad === 'tarde') {
+        finalAmount = String(35000 * Number(personas));
+      } else {
+        return res.status(400).json({ error: 'Modalidad no válida' });
+      }
+      finalOrder = generateOrderId();
+
+      // Save reservation to Supabase
+      const { error: dbError } = await supabase.from('reservas').insert({
+        redsys_order: finalOrder,
+        nombre,
+        email,
+        telefono: telefono || null,
+        mensaje: mensaje || null,
+        personas: Number(personas),
+        disponibilidad_id: disponibilidad_id || null,
+        importe_cents: Number(finalAmount),
+        estado_pago: 'pendiente',
+      });
+
+      if (dbError) {
+        console.error('Supabase insert error:', dbError);
+        return res.status(500).json({ error: 'Error al guardar la reserva' });
+      }
     } else {
-      return res.status(400).json({ error: 'Modalidad no válida' });
+      return res.status(400).json({ error: 'Faltan parámetros: amount+order o modalidad+personas+nombre+email' });
     }
-
-    // --- Generate order ID ---
-    const orderId = generateOrderId();
 
     // --- Determine site URL ---
     const siteUrl = process.env.VERCEL_URL
@@ -65,8 +87,8 @@ module.exports = async function handler(req, res) {
 
     // --- Build Redsys merchant parameters ---
     const merchantParams = {
-      DS_MERCHANT_AMOUNT: String(amount),
-      DS_MERCHANT_ORDER: orderId,
+      DS_MERCHANT_AMOUNT: finalAmount,
+      DS_MERCHANT_ORDER: finalOrder,
       DS_MERCHANT_MERCHANTCODE: REDSYS_MERCHANT_CODE,
       DS_MERCHANT_TERMINAL: REDSYS_TERMINAL,
       DS_MERCHANT_CURRENCY: '978',
@@ -82,33 +104,29 @@ module.exports = async function handler(req, res) {
     // --- Create signed Redsys form ---
     const form = createRedirectForm(merchantParams);
 
-    // --- Save reservation to Supabase ---
-    const { error: dbError } = await supabase.from('reservas').insert({
-      order_id: orderId,
-      modalidad,
-      personas: Number(personas),
-      nombre,
-      email,
-      telefono: telefono || null,
-      mensaje: mensaje || null,
-      disponibilidad_id,
-      importe: amount,
-      estado_pago: 'pendiente',
-      created_at: new Date().toISOString(),
-    });
-
-    if (dbError) {
-      console.error('Supabase insert error:', dbError);
-      return res.status(500).json({ error: 'Error al guardar la reserva' });
-    }
-
     // --- Determine Redsys payment URL ---
     const redsysUrl =
       REDSYS_ENV === 'production'
         ? 'https://sis.redsys.es/sis/realizarPago'
         : 'https://sis-t.redsys.es:25443/sis/realizarPago';
 
-    // --- Return form data for client-side redirect ---
+    if (req.method === 'GET') {
+      // Auto-submit HTML form — redirects user to Redsys
+      res.setHeader('Content-Type', 'text/html');
+      return res.status(200).send(`<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Redirigiendo al pago...</title>
+<style>body{font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#f5f0e8;color:#1a2d40;}
+.loader{text-align:center}.spinner{width:40px;height:40px;border:4px solid #d4c9b8;border-top:4px solid #c97b3a;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}</style></head>
+<body><div class="loader"><div class="spinner"></div><p>Redirigiendo a la pasarela de pago...</p></div>
+<form id="redsys" action="${redsysUrl}" method="POST">
+<input type="hidden" name="Ds_SignatureVersion" value="${form.Ds_SignatureVersion}">
+<input type="hidden" name="Ds_MerchantParameters" value="${form.Ds_MerchantParameters}">
+<input type="hidden" name="Ds_Signature" value="${form.Ds_Signature}">
+</form><script>document.getElementById('redsys').submit();</script></body></html>`);
+    }
+
+    // POST response — return JSON
     return res.status(200).json({
       url: redsysUrl,
       Ds_SignatureVersion: form.Ds_SignatureVersion,
