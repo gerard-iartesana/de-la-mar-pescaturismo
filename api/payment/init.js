@@ -122,18 +122,18 @@ module.exports = async function handler(req, res) {
 @keyframes spin{to{transform:rotate(360deg)}}</style></head>
 <body><div class="loader"><div class="spinner"></div><p>Redirigiendo a la pasarela de pago...</p></div>
 <form id="redsys" action="${redsysUrl}" method="POST">
-<input type="hidden" name="Ds_SignatureVersion" value="${form.Ds_SignatureVersion}">
-<input type="hidden" name="Ds_MerchantParameters" value="${form.Ds_MerchantParameters}">
-<input type="hidden" name="Ds_Signature" value="${form.Ds_Signature}">
+<input type="hidden" name="Ds_SignatureVersion" value="${form.body.Ds_SignatureVersion}">
+<input type="hidden" name="Ds_MerchantParameters" value="${form.body.Ds_MerchantParameters}">
+<input type="hidden" name="Ds_Signature" value="${form.body.Ds_Signature}">
 </form><script>document.getElementById('redsys').submit();</script></body></html>`);
     }
 
     // POST response — return JSON
     return res.status(200).json({
       url: redsysUrl,
-      Ds_SignatureVersion: form.Ds_SignatureVersion,
-      Ds_MerchantParameters: form.Ds_MerchantParameters,
-      Ds_Signature: form.Ds_Signature,
+      Ds_SignatureVersion: form.body.Ds_SignatureVersion,
+      Ds_MerchantParameters: form.body.Ds_MerchantParameters,
+      Ds_Signature: form.body.Ds_Signature,
     });
   } catch (err) {
     console.error('Payment init error:', err);
