@@ -1,10 +1,10 @@
 const { createRedsysAPI, SANDBOX_URLS, PRODUCTION_URLS } = require('redsys-easy');
 const { createClient } = require('@supabase/supabase-js');
 
-const REDSYS_SECRET_KEY = process.env.REDSYS_SECRET_KEY;
-const REDSYS_MERCHANT_CODE = process.env.REDSYS_MERCHANT_CODE;
-const REDSYS_TERMINAL = process.env.REDSYS_TERMINAL;
-const REDSYS_ENV = process.env.REDSYS_ENV || 'test';
+const REDSYS_SECRET_KEY = (process.env.REDSYS_SECRET_KEY || '').trim();
+const REDSYS_MERCHANT_CODE = (process.env.REDSYS_MERCHANT_CODE || '').trim();
+const REDSYS_TERMINAL = (process.env.REDSYS_TERMINAL || '').trim();
+const REDSYS_ENV = (process.env.REDSYS_ENV || 'test').trim();
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
