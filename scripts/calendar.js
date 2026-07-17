@@ -27,6 +27,17 @@
     bindNavigation();
     renderCalendar();
     loadSlots();
+
+    // Scroll to calendar when clicking the readonly date field
+    const fechaInput = document.getElementById('fecha');
+    if (fechaInput) {
+      fechaInput.addEventListener('click', () => {
+        const calSection = document.getElementById('calendario');
+        if (calSection) {
+          calSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
   }
 
   // --- Navigation ---
@@ -129,13 +140,14 @@
       let dotHtml = '';
       if (!isPast) {
         const slots = cached[dateStr];
+        let isClickable = true;
         if (slots && slots.length > 0) {
           let totalReserved = 0;
-          let hasAvailable = false;
+          let hasActive = false;
           slots.forEach(slot => {
             if (slot.estado === 'cancelado') return;
             totalReserved += slot.plazas_reservadas || 0;
-            hasAvailable = true;
+            hasActive = true;
           });
 
           let barColor = '#5ec489', barWidth = '6px', barHeight = '6px', barRadius = '50%';
@@ -147,10 +159,14 @@
             barColor = '#f0c929'; barWidth = '14px'; barHeight = '5px'; barRadius = '3px';
           }
           dotHtml = `<span style="display:inline-block;background:${barColor};width:${barWidth};height:${barHeight};border-radius:${barRadius};"></span>`;
-          if (hasAvailable) classes += ' has-slots';
+          if (!hasActive) isClickable = false; // All slots cancelled
         } else {
-          // Default green dot — no data
+          // Default green dot — no data in database (default available)
           dotHtml = '<span style="display:inline-block;background:#5ec489;width:6px;height:6px;border-radius:50%;"></span>';
+        }
+
+        if (isClickable) {
+          classes += ' has-slots';
         }
       }
 
@@ -162,12 +178,16 @@
 
     daysEl.innerHTML = html;
 
-    // Bind click handlers for days with slots
-    Object.entries(cached).forEach(([dateStr, slots]) => {
-      const dayEl = document.querySelector(`.cal-day[data-date="${dateStr}"]`);
-      if (dayEl && dayEl.classList.contains('has-slots')) {
-        dayEl.addEventListener('click', () => selectDate(dateStr, slots));
-      }
+    // Bind click handlers for all clickable days (with data or default slots)
+    daysEl.querySelectorAll('.cal-day.has-slots').forEach(dayEl => {
+      const dateStr = dayEl.dataset.date;
+      dayEl.addEventListener('click', () => {
+        const slots = cached[dateStr] || [
+          { modalidad: 'manana', plazas_totales: 6, plazas_reservadas: 0, estado: 'disponible' },
+          { modalidad: 'tarde', plazas_totales: 10, plazas_reservadas: 0, estado: 'disponible' }
+        ];
+        selectDate(dateStr, slots);
+      });
     });
   }
 
