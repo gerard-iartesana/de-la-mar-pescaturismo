@@ -129,14 +129,14 @@
 /* Availability dots */
 .cal-day-dots {
   display: flex;
-  gap: 3px;
+  justify-content: center;
 }
 
 .cal-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+  height: 5px;
+  border-radius: 3px;
   flex-shrink: 0;
+  transition: width 0.3s ease;
 }
 
 .cal-dot.morning {
@@ -155,20 +155,30 @@
   background: var(--cal-full);
 }
 
+/* Disponible — small dot */
 .cal-dot.available {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
   background: var(--cal-available);
 }
 
+/* Algunas plazas — short bar */
 .cal-dot.reservas-1 {
-  background: #f0c929; /* yellow — 1 reservation */
+  width: 14px;
+  background: #f0c929;
 }
 
+/* Pocas plazas — medium bar */
 .cal-dot.reservas-2 {
-  background: #e88b2e; /* orange — 2 reservations */
+  width: 24px;
+  background: #e88b2e;
 }
 
+/* Completo — full width bar */
 .cal-dot.reservas-3 {
-  background: #dc3545; /* red — 3+ reservations */
+  width: 85%;
+  background: #dc3545;
 }
 
 /* Clickable days */
