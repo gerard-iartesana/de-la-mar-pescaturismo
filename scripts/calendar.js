@@ -48,10 +48,7 @@
   // --- Fetch slots from Supabase ---
   async function loadSlots() {
     const key = `${currentYear}-${currentMonth}`;
-    if (slotsCache[key]) {
-      applySlots(slotsCache[key]);
-      return;
-    }
+    if (slotsCache[key]) return; // Already cached, renderCalendar uses it
 
     const firstDay = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
@@ -80,10 +77,10 @@
       });
 
       slotsCache[key] = grouped;
-      applySlots(grouped);
+      // Re-render with data now in cache
+      renderCalendar();
     } catch (err) {
       console.error('Calendar: error loading slots', err);
-      applySlots({});
     }
   }
 
@@ -94,7 +91,6 @@
     const detailEl = document.getElementById('cal-detail');
     
     if (!titleEl || !daysEl) return;
-    console.log('[Calendar] renderCalendar called — will reset dots');
 
     titleEl.textContent = `${MONTHS_ES[currentMonth]} ${currentYear}`;
     if (detailEl) detailEl.classList.remove('visible');
@@ -107,6 +103,10 @@
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Get cached data for this month
+    const key = `${currentYear}-${currentMonth}`;
+    const cached = slotsCache[key] || {};
+
     let html = '';
 
     // Empty cells before first day
@@ -114,7 +114,7 @@
       html += '<div class="cal-day empty"></div>';
     }
 
-    // Day cells — show green dot on all non-past days
+    // Day cells — generate correct dot from cache
     for (let d = 1; d <= daysInMonth; d++) {
       const dateObj = new Date(currentYear, currentMonth, d);
       const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -125,19 +125,50 @@
       if (isPast) classes += ' past';
       if (isToday) classes += ' today';
 
-      const defaultDot = isPast ? '' : '<span class="cal-dot available"></span>';
+      // Compute dot based on cached data
+      let dotHtml = '';
+      if (!isPast) {
+        const slots = cached[dateStr];
+        if (slots && slots.length > 0) {
+          let totalReserved = 0;
+          let hasAvailable = false;
+          slots.forEach(slot => {
+            if (slot.estado === 'cancelado') return;
+            totalReserved += slot.plazas_reservadas || 0;
+            hasAvailable = true;
+          });
+
+          let barColor = '#5ec489', barWidth = '6px', barHeight = '6px', barRadius = '50%';
+          if (totalReserved >= 7) {
+            barColor = '#dc3545'; barWidth = '85%'; barHeight = '5px'; barRadius = '3px';
+          } else if (totalReserved >= 3) {
+            barColor = '#e88b2e'; barWidth = '24px'; barHeight = '5px'; barRadius = '3px';
+          } else if (totalReserved >= 1) {
+            barColor = '#f0c929'; barWidth = '14px'; barHeight = '5px'; barRadius = '3px';
+          }
+          dotHtml = `<span style="display:inline-block;background:${barColor};width:${barWidth};height:${barHeight};border-radius:${barRadius};"></span>`;
+          if (hasAvailable) classes += ' has-slots';
+        } else {
+          // Default green dot — no data
+          dotHtml = '<span style="display:inline-block;background:#5ec489;width:6px;height:6px;border-radius:50%;"></span>';
+        }
+      }
 
       html += `<div class="${classes}" data-date="${dateStr}">
         <span class="cal-day-num">${d}</span>
-        <div class="cal-day-dots" id="dots-${dateStr}">${defaultDot}</div>
+        <div class="cal-day-dots" id="dots-${dateStr}">${dotHtml}</div>
       </div>`;
     }
 
     daysEl.innerHTML = html;
 
-    // Apply cached slots if available
-    const key = `${currentYear}-${currentMonth}`;
-    if (slotsCache[key]) applySlots(slotsCache[key]);
+    // Bind click handlers for days with slots
+    Object.entries(cached).forEach(([dateStr, slots]) => {
+      const dayEl = document.querySelector(`.cal-day[data-date="${dateStr}"]`);
+      if (dayEl && dayEl.classList.contains('has-slots')) {
+        dayEl.addEventListener('click', () => selectDate(dateStr, slots));
+      }
+    });
   }
 
   // --- Apply slot data to calendar ---
