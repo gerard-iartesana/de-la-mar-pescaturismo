@@ -32,6 +32,8 @@ function generateOrderId() {
 }
 
 module.exports = async function handler(req, res) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+
   // Accept GET (from "Pagar ahora" button) and POST
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
