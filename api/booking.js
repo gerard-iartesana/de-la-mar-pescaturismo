@@ -1,3 +1,5 @@
+const { createClient } = require('@supabase/supabase-js');
+
 function generateOrderId() {
   const now = Date.now().toString();
   // Take last 5 digits of timestamp for uniqueness
