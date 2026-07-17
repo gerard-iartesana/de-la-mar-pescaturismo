@@ -12,6 +12,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const state = {
   user: null,
   profile: null,
+  initialized: false,
   calendarDate: new Date(),
   disponibilidad: [],
   reservas: [],
@@ -94,6 +95,7 @@ async function signOut() {
   await sb.auth.signOut();
   state.user = null;
   state.profile = null;
+  state.initialized = false;
   showScreen('login');
 }
 
@@ -118,7 +120,10 @@ async function loadProfile() {
     showScreen('pending');
   } else {
     showScreen('admin');
-    initAdmin();
+    if (!state.initialized) {
+      state.initialized = true;
+      initAdmin();
+    }
   }
 }
 
