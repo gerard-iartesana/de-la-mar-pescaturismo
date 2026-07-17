@@ -14,6 +14,8 @@
     const form = document.getElementById('lookup-form');
     const resultDiv = document.getElementById('lookup-result');
 
+    const bodyBtn = document.getElementById('body-lookup-btn');
+
     if (!modal) return;
 
     const openModal = (e) => {
@@ -40,6 +42,7 @@
     };
 
     if (openBtn) openBtn.addEventListener('click', openModal);
+    if (bodyBtn) bodyBtn.addEventListener('click', openModal);
     if (mobileOpenBtn) mobileOpenBtn.addEventListener('click', (e) => {
       openModal(e);
       // Close mobile menu if open
