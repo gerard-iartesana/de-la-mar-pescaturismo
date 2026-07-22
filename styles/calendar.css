@@ -280,6 +280,12 @@
   border-color: var(--acento, #c97b3a);
 }
 
+.cal-slot.selected-slot {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: var(--acento, #c97b3a) !important;
+  box-shadow: 0 0 0 1px var(--acento, #c97b3a);
+}
+
 .cal-slot-label {
   font-weight: 600;
   font-size: 0.85rem;

@@ -28,14 +28,11 @@
     renderCalendar();
     loadSlots();
 
-    // Scroll to calendar when clicking the readonly date field
+    // Sync native datepicker back to calendar
     const fechaInput = document.getElementById('fecha');
     if (fechaInput) {
-      fechaInput.addEventListener('click', () => {
-        const calSection = document.getElementById('calendario');
-        if (calSection) {
-          calSection.scrollIntoView({ behavior: 'smooth' });
-        }
+      fechaInput.addEventListener('change', (e) => {
+        syncDatepickerToCalendar(e.target.value);
       });
     }
   }
@@ -253,6 +250,30 @@
 
     selectedDate = dateStr;
 
+    // Fill the date in the form immediately!
+    const fechaInput = document.getElementById('fecha');
+    if (fechaInput) {
+      fechaInput.value = dateStr;
+      // Trigger blur/change events to clear any validation error
+      fechaInput.dispatchEvent(new Event('blur'));
+    }
+
+    // Match slot with the current modality in the form
+    const modalidadSelect = document.getElementById('modalidad');
+    const form = document.getElementById('reserva-form');
+    let currentMod = 'manana';
+    if (modalidadSelect) {
+      currentMod = modalidadSelect.value;
+    }
+    if (form) {
+      const matchedSlot = slots.find(s => s.modalidad === currentMod);
+      if (matchedSlot) {
+        form.dataset.disponibilidadId = matchedSlot.id || '';
+      } else {
+        form.dataset.disponibilidadId = '';
+      }
+    }
+
     // Show detail panel
     const detailEl = document.getElementById('cal-detail');
     if (!detailEl) return;
@@ -276,9 +297,11 @@
         ? `${remaining} plaza${remaining !== 1 ? 's' : ''} disponible${remaining !== 1 ? 's' : ''}`
         : 'Completo';
 
+      const isSelectedSlot = currentMod === slot.modalidad;
+
       slotsHtml += `
-        <div class="cal-slot ${isAvailable ? '' : 'unavailable'}" 
-             ${isAvailable ? `onclick="window.calSelectSlot('${dateStr}', '${slot.modalidad}', '${slot.id}')"` : ''}>
+        <div class="cal-slot ${isAvailable ? '' : 'unavailable'} ${isSelectedSlot ? 'selected-slot' : ''}" 
+             ${isAvailable ? `onclick="window.calSelectSlot('${dateStr}', '${slot.modalidad}', '${slot.id || ''}')"` : ''}>
           <div class="cal-slot-label">
             <span class="cal-dot ${dotClass}"></span>
             ${label} — ${time}
@@ -297,20 +320,63 @@
     detailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
+  // --- Sync native datepicker back to calendar ---
+  function syncDatepickerToCalendar(dateStr) {
+    if (!dateStr) return;
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return;
+    
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // 0-indexed
+    const day = parseInt(parts[2], 10);
+    
+    if (isNaN(year) || isNaN(month) || isNaN(day)) return;
+    
+    currentYear = year;
+    currentMonth = month;
+    
+    renderCalendar();
+    
+    loadSlots().then(() => {
+      const key = `${currentYear}-${currentMonth}`;
+      const cached = slotsCache[key] || {};
+      const slots = cached[dateStr] || [
+        { modalidad: 'manana', plazas_totales: 6, plazas_reservadas: 0, estado: 'disponible' },
+        { modalidad: 'tarde', plazas_totales: 10, plazas_reservadas: 0, estado: 'disponible' }
+      ];
+      selectDate(dateStr, slots);
+    });
+  }
+
   // --- Global: select a slot and fill the booking form ---
   window.calSelectSlot = function (dateStr, modalidad, disponibilidadId) {
     // Fill the form
     const fechaInput = document.getElementById('fecha');
     const modalidadSelect = document.getElementById('modalidad');
     
-    if (fechaInput) fechaInput.value = dateStr;
+    if (fechaInput) {
+      fechaInput.value = dateStr;
+      fechaInput.dispatchEvent(new Event('blur'));
+    }
     if (modalidadSelect) modalidadSelect.value = modalidad;
 
     // Store disponibilidad ID for payment
     const form = document.getElementById('reserva-form');
     if (form) {
-      form.dataset.disponibilidadId = disponibilidadId;
+      form.dataset.disponibilidadId = disponibilidadId || '';
     }
+
+    // Highlight active slot in details view
+    document.querySelectorAll('.cal-slot').forEach(slotEl => {
+      slotEl.classList.remove('selected-slot');
+    });
+    // Wait for DOM state, find the active slot
+    const slots = document.querySelectorAll('.cal-slot');
+    slots.forEach(slotEl => {
+      if (slotEl.innerHTML.includes(modalidad === 'manana' ? 'Amanecer y pesca' : 'Demostración')) {
+        slotEl.classList.add('selected-slot');
+      }
+    });
 
     // Scroll to form
     const reservaSection = document.getElementById('reserva');
