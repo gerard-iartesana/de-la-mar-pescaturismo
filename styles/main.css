@@ -300,8 +300,9 @@ h3{font-size:var(--text-xl)}
 
 /* --- SECTION: TARIFAS --- */
 .tarifas{background:var(--crema)}
-.tarifas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-8)}
+.tarifas-grid{display:flex;justify-content:center;flex-wrap:wrap;gap:var(--sp-8)}
 .tarifa-card{
+  flex:1;max-width:380px;min-width:280px;
   background:var(--white);border-radius:var(--radius-lg);padding:var(--sp-10) var(--sp-8);
   text-align:center;box-shadow:var(--shadow-sm);position:relative;
   transition:transform var(--dur-normal) var(--ease-out),box-shadow var(--dur-normal) var(--ease-out);
@@ -323,7 +324,6 @@ h3{font-size:var(--text-xl)}
   font-size:var(--text-sm);color:var(--text-secondary);
 }
 .tarifa-features li svg{width:18px;height:18px;flex-shrink:0;stroke:var(--success);margin-top:2px}
-@media(max-width:900px){.tarifas-grid{grid-template-columns:1fr}}
 
 /* --- SECTION: RESERVA --- */
 .reserva{background:var(--turquesa-deep);color:var(--white)}
